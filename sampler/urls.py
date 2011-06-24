@@ -6,7 +6,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
     url(r'^$', 'plotter.views.index'),
-    #url(r'^api$', 'plotter.views.query'),
+    url(r'^api$', 'plotter.views.query'),
     # Examples:
     # url(r'^$', 'sampler.views.home', name='home'),
     # url(r'^sampler/', include('sampler.foo.urls')),

@@ -1,21 +1,36 @@
 <html>
 <head> 
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js">
+  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/vendor/jquery.js">
   </script>
-  <script type="text/javascript" src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js">
+  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/vendor/raphael.js">
   </script>
-  <script type="text/javascript" src="https://raw.github.com/benaskins/simplegraph/master/jquery.simplegraph.js">
+  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/jquery.simplegraph.js">
   </script>
   
   <script>
-    $(document).onload( function() {
-      alert('hello world');
+    $(document).ready( function() {
+      var temp_data = [20,25,35,18,17,23];
+      var temp_labels = [1,2,3,4,5,6];
+      $.ajax( {   url : '/api',
+                  data : {'lo' : 20, 'hi' : 40}, 
+                  success : function(data) {
+                    console.log(data);
+                    data = JSON.parse(data);
+                    labels = data['labels'];
+                    data = data['points'];
+                    console.log(labels);
+                    console.log(data);
+                    $('#holder').simplegraph( data, labels );
+                  }}
+          
+            );
     });
   </script>
   
   <title>Plotter</title>
 </head>
 <body>
-  
+  <div id="holder">
+  </div>
 </body>
 </html>
