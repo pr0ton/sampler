@@ -18,11 +18,19 @@ def query(request):
     
     labels, points = [], []
     for n in f:
-      i += 1
       if lo <= i and i <= hi:
         points.append( n[:-1] )
         labels.append( i )
+      i += 1
     
+    _points = []
+    _labels = []
+    step = (hi - lo) / LIMIT
+    for z in xrange(0, len(points), step):
+       _points.append( points[z] )
+       _labels.append( labels[z] )
+    labels = _labels
+    points = _points
     req = {"labels" : labels, "points" : points}
     return HttpResponse(simplejson.dumps(req), mimetype="application/json")
   except:

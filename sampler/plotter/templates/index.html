@@ -8,29 +8,54 @@
   </script>
   
   <script>
-    $(document).ready( function() {
-      var temp_data = [20,25,35,18,17,23];
-      var temp_labels = [1,2,3,4,5,6];
+    function plot(lo, hi) {
       $.ajax( {   url : '/api',
-                  data : {'lo' : 20, 'hi' : 40}, 
+                  data : {'lo' : lo, 'hi' : hi}, 
                   success : function(data) {
                     console.log(data);
                     data = JSON.parse(data);
                     labels = data['labels'];
                     data = data['points'];
-                    console.log(labels);
-                    console.log(data);
-                    $('#holder').simplegraph( data, labels );
-                  }}
-          
+                    //console.log(labels);
+                    //console.log(data);
+                    
+                    var min_y = parseInt(data[0]);
+                    for (var i=0; i < data.length; i++) {
+                      var z = parseInt(data[i]);
+                      if (z < min_y) {
+                        min_y = z;
+                      }
+                    }
+                    for (var i=0; i < data.length; i++) {
+                      data[i] = parseInt(data[i]) - min_y + 100;
+                    }
+                    
+                    var config = {penColor: "#f00", fillUnderLine: true, minYAxisValue: min_y}; 
+                    $('#holder').simplegraph( data, labels, config );
+                    
+                  }
+              }
             );
+    }
+    $(document).ready( function() {
+      var temp_data = [20,25,35,18,17,23];
+      var temp_labels = [1,2,3,4,5,6];
+      plot(0, 1000);
     });
   </script>
-  
+  <style>
+  a {
+    text-decoration: none;
+    font-size: 2.2em;
+    color: #444;
+  }
+  </style>
   <title>Plotter</title>
 </head>
 <body>
   <div id="holder">
   </div>
+  <a id="plus" href="#"> + </a> &nbsp;  
+  <a id="minus" href="#"> - </a> <br>
 </body>
 </html>
