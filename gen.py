@@ -1,6 +1,6 @@
 import random
 
-MAX = 1000
+MAX = 2000
 x, delta = 10000, 2000
 
 for i in xrange(0, MAX):
