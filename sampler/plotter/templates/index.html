@@ -1,23 +1,19 @@
 <html>
 <head> 
-  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/vendor/jquery.js">
+  <script type="text/javascript" src="/static/jquery-1.6.1.min.js">
   </script>
-  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/vendor/raphael.js">
-  </script>
-  <script type="text/javascript" src="http://benaskins.github.com/simplegraph/jquery.simplegraph.js">
+  <script type="text/javascript" src="/static/highcharts.js">
   </script>
   
   <script>
-    function plot(lo, hi) {
+    function plot() {
       $.ajax( {   url : '/api',
-                  data : {'lo' : lo, 'hi' : hi}, 
+                  data : {'lo' : window.lo, 'hi' : window.hi, 'granularity' : window.granularity}, 
                   success : function(data) {
-                    console.log(data);
-                    data = JSON.parse(data);
                     labels = data['labels'];
                     data = data['points'];
-                    //console.log(labels);
-                    //console.log(data);
+                    console.log(labels);
+                    console.log(data);
                     
                     var min_y = parseInt(data[0]);
                     for (var i=0; i < data.length; i++) {
@@ -27,20 +23,90 @@
                       }
                     }
                     for (var i=0; i < data.length; i++) {
-                      data[i] = parseInt(data[i]) - min_y + 100;
+                      data[i] = [labels[i], parseInt(data[i]) - min_y + 100];
                     }
-                    
-                    var config = {penColor: "#f00", fillUnderLine: true, minYAxisValue: min_y}; 
-                    $('#holder').simplegraph( data, labels, config );
+                    chart = new Highcharts.Chart({
+                      chart: {
+                         renderTo: 'holder',
+                         defaultSeriesType: 'line',
+                         marginRight: 130,
+                         marginBottom: 25,
+                         events : {
+                            click : function(e) {
+                              var mid = event.xAxis[0].value; //event.yAxis[0].value
+                              var lo = window.lo, hi = window.hi;
+                              
+                              var delta = (hi - lo)/4;
+                              if (delta >= 10) {
+                                var new_lo = Math.round(mid - delta);
+                                var new_hi = Math.round(mid + delta);
+                                
+                                if (new_lo < lo) {
+                                  new_lo = lo;
+                                  new_hi = new_lo + 2*delta;
+                                } else if (new_hi > hi) {
+                                  new_hi = hi;
+                                  new_lo = new_hi - 2*delta;
+                                }
+                                window.lo = new_lo;
+                                window.hi = new_hi;
+                                plot();
+                                window.granularity += 1
+                              }
+                            }
+                          }
+                      },
+                      title: {
+                         text: 'Custom Plotter',
+                         x: -20 //center
+                      },
+                      subtitle: {
+                         text: '',
+                         x: -20
+                      },
+                      xAxis: {
+                         //categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                         //   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                      },
+                      yAxis: {
+                         title: {
+                            text: 'Y-axis'
+                         },
+                         plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                         }]
+                      },
+                      tooltip: {
+                         formatter: function() {
+                                   return '<b>'+ this.series.name +'</b><br/>'+
+                               this.x +': '+ this.y;
+                         }
+                      },
+                      legend: {
+                         layout: 'vertical',
+                         align: 'right',
+                         verticalAlign: 'top',
+                         x: -10,
+                         y: 100,
+                         borderWidth: 0
+                      },
+                      series: [{
+                         name: 'X-axis',
+                         data: data,
+                      }],
+                    });
                     
                   }
               }
             );
     }
     $(document).ready( function() {
-      var temp_data = [20,25,35,18,17,23];
-      var temp_labels = [1,2,3,4,5,6];
-      plot(0, 1000);
+      window.lo = 0; window.hi = 1000;
+      window.granularity = 1;
+      plot();
+      
     });
   </script>
   <style>
@@ -53,9 +119,7 @@
   <title>Plotter</title>
 </head>
 <body>
-  <div id="holder">
+  <div id="holder" style="width:100%; height:400px">
   </div>
-  <a id="plus" href="#"> + </a> &nbsp;  
-  <a id="minus" href="#"> - </a> <br>
 </body>
 </html>
